@@ -1,0 +1,370 @@
+## skin for klimalogg - Copyright 2015 Matthew Wall
+#errorCatcher Echo
+#encoding UTF-8
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head profile="http://www.w3.org/2005/10/profile">
+    <!-- skin for klimalogg - Copyright 2015 Matthew Wall -->
+    #if $encoding == 'utf8'
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    #end if
+    <title>$station.location</title>
+    <style>
+body {
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  background-color: $Extras.BG_COLOR;
+  color: $Extras.FG_COLOR;
+}
+h1 {
+  font-size: 110%;
+}
+h2 {
+  font-size: 100%;
+}
+a:link {
+  text-decoration: none;
+  color: $Extras.LINK_COLOR;
+}
+a:hover {
+  text-decoration: none;
+  color: $Extras.HOVER_COLOR;
+  background-color: $Extras.HOVER_BG_COLOR;
+}
+a:visited {
+  text-decoration: none;
+  color: $Extras.VISITED_COLOR;
+}
+
+#header {
+  clear: both;
+  margin: 0;
+  padding: 0;
+}
+
+#content {
+  clear: both;
+}
+
+#station_info {
+  float: left;
+  line-height: 95%;
+}
+.station_title {
+  font-size: 120%;
+  font-weight: bold;
+}
+.station_location {
+  font-size: 75%;
+}
+.station_time {
+  font-size: 75%;
+}
+
+.data_graphs {
+}
+.data_table {
+  float: right;
+}
+
+#footer {
+  padding-top: 50px;
+}
+#footer table {
+  font-size: 8pt;
+  font-style: italic;
+  color: #aaaaaa;
+}
+#footer td.label {
+  text-align: right;
+}
+
+.metrics_table {
+  font-size: 80%;
+}
+.metric_name {
+  text-align: right;
+}
+.metric_large {
+  text-align: left;
+  font-weight: bold;
+  font-size: 230%;
+  color: $Extras.LARGE_COLOR;
+}
+.metric_value {
+  text-align: left;
+  font-weight: bold;
+}
+.metric_units {
+  text-align: left;
+}
+.hilo_time {
+  text-align: left;
+  color: #aaaaaa;
+  font-size: 85%;
+}
+.heatindex {
+  color: $Extras.HEATINDEX_COLOR;
+}
+.heatindex {
+  color: $Extras.WINDCHILL_COLOR;
+}
+.table_heading {
+  font-size: 80%;
+  color: #888888;
+  border-bottom: 1px solid #cccccc;
+}
+
+.navigation {
+  float: right;
+}
+.period {
+  padding-left: 25px;
+  padding-right: 25px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  background-color: $Extras.BG_COLOR;
+  border: 1px solid $Extras.VISITED_COLOR;
+  cursor: pointer;
+}
+.period_selected {
+  padding-left: 25px;
+  padding-right: 25px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  background-color: $Extras.HOVER_BG_COLOR;
+  border: 1px solid $Extras.VISITED_COLOR;
+  cursor: pointer;
+}
+    </style>
+    <script>
+var periods = ['day','week','month','year'];
+function choose(id) {
+  for(var i=0; i<periods.length; i++) {
+    var c = document.getElementById('control_'+periods[i]);
+    if(c) c.className = (periods[i] == id) ? 'period_selected' : 'period';
+    var g = document.getElementById('graphs_'+periods[i]);
+    if(g) g.style.display = (periods[i] == id) ? 'block' : 'none';
+  }
+}
+    </script>
+  </head>
+  <body>
+    <div id='header'>
+      <div id='station_info'>
+        <span class='station_title'>$station.location</span><br/>
+        <span class='station_time'>$current.dateTime</span>
+      </div>
+      <div class='navigation'>
+        <div>
+          <a class='period_selected' id='control_day' onclick="choose('day')">Day</a>  
+          <br/>
+          <a class='period_selected' href="./daytemp_a.png">Eksportuj dzienne</a>
+        </div>
+        <br/>
+        <div>
+          <a class='period' id='control_week' onclick="choose('week')">Week</a> 
+          <br/>
+          <a class='period' id='control_week'>Eksportuj tygodniowe</a>
+        </div> 
+        <br/>
+        <div>
+          <a class='period' id='control_month' onclick="choose('month')">Month</a>
+          <a class='period' id='control_month' onclick="choose('month')">Eksportuj miesieczne</a>
+        </div>
+        <br/>
+        <div> 
+          <a class='period' id='control_year' onclick="choose('year')">Year</a>
+          <a class='period' id='control_year'>Eksportuj roczne</a>
+        </div>
+        <br/>
+      </div>
+    </div>
+    <div id='content'>
+      <div class='data_table'>
+<!-- current readings in tabular form -->
+<table class='metrics_table'>
+  <tr>
+    <td></td>
+    <td class='table_heading' colspan="2">ACTUAL</td>
+    <td class='table_heading'>HI/LO</td>
+    <td></td>
+  </tr>
+  #if $day.temp0.has_data
+  <h3> kuzwa #if $day.temp0.has_data </h3>
+  <tr style='vertical-align:top'>
+    <td class='metric_name'>Temperature KLP</td>
+    <td class='metric_large'>$current.temp0.formatted</td>
+    <td class='metric_value'><span class='dewpoint'>$current.dewpoint0.formatted</span><br/><span class='heatindex'>$current.heatindex0.formatted</span></td>
+    <td class='metric_value'>
+      $day.temp0.max.formatted<br/>
+      $day.temp0.min.formatted</td>
+    <td class='metric_units'>$unit.label.temp0</td>
+  </tr>
+  #end if
+  #if $day.humidity0.has_data
+  <tr style='vertical-align:top'>
+    <td class='metric_name'>Humidity KLP</td>
+    <td class='metric_large' colspan='2' >$current.humidity0.formatted</td>
+    <td class='metric_value'>
+      $day.humidity0.max.formatted<br/>
+      $day.humidity0.min.formatted</td>
+    <td class='metric_units'>$unit.label.humidity0</td>
+  </tr>
+  #end if
+</table>
+<!-- hi/lo readings in tabular form -->
+<table class='metrics_table'>
+  <tr>
+    <td></td>
+    <td class="table_heading">TODAY</td>
+	<td class="table_heading">WEEK</td>
+    <td class="table_heading">MONTH</td>
+    <td class="table_heading">YEAR</td>
+    <td></td>
+  </tr>
+  ##
+  ## kl-schema ##
+  ##
+
+#for t in [ ($day.temp0, $week.temp0, $month.temp0, $year.temp0, $unit.label.temp0, "KLP"), ($day.temp1, $week.temp1, $month.temp1, $year.temp1, $unit.label.temp1, "Sensor 1"), ($day.temp2, $week.temp2, $month.temp2, $year.temp2, $unit.label.temp2, "Sensor 2"), ($day.temp3, $week.temp3, $month.temp3, $year.temp3, $unit.label.temp3, "Sensor 3"), ($day.temp4, $week.temp4, $month.temp4, $year.temp4, $unit.label.temp4, "Sensor 4"), ($day.temp5, $week.temp5, $month.temp5, $year.temp5, $unit.label.temp5, "Sensor 5"), ($day.temp6, $week.temp6, $month.temp6, $year.temp6, $unit.label.temp6, "Sensor 6"), ($day.temp7, $week.temp7, $month.temp7, $year.temp7, $unit.label.temp7, "Sensor 7"), ($day.temp8, $week.temp8, $month.temp8, $year.temp8, $unit.label.temp8, "Sensor 8") ]:
+#for t in [ ($day.temp0, $week.temp0, $month.temp0, $year.temp0, $unit.label.temp0, "KLP"), ($day.temp1, $week.temp1, $month.temp1, $year.temp1, $unit.label.temp1, "Sensor 1"), ($day.temp2, $week.temp2, $month.temp2, $year.temp2, $unit.label.temp2, "Sensor 2"), ($day.temp3, $week.temp3, $month.temp3, $year.temp3, $unit.label.temp3, "Sensor 3"), ($day.temp4, $week.temp4, $month.temp4, $year.temp4, $unit.label.temp4, "Sensor 4"), ($day.temp5, $week.temp5, $month.temp5, $year.temp5, $unit.label.temp5, "Sensor 5"), ($day.temp6, $week.temp6, $month.temp6, $year.temp6, $unit.label.temp6, "Sensor 6"), ($day.temp7, $week.temp7, $month.temp7, $year.temp7, $unit.label.temp7, "Sensor 7"), ($day.temp8, $week.temp8, $month.temp8, $year.temp8, $unit.label.temp8, "Sensor 8") ]:
+#for t in [ ($day.temp0, $week.temp0, $month.temp0, $year.temp0, $unit.label.temp0, "KLP"), ($day.temp1, $week.temp1, $month.temp1, $year.temp1, $unit.label.temp1, "Sensor 1"), ($day.temp2, $week.temp2, $month.temp2, $year.temp2, $unit.label.temp2, "Sensor 2"), ($day.temp3, $week.temp3, $month.temp3, $year.temp3, $unit.label.temp3, "Sensor 3"), ($day.temp4, $week.temp4, $month.temp4, $year.temp4, $unit.label.temp4, "Sensor 4"), ($day.temp5, $week.temp5, $month.temp5, $year.temp5, $unit.label.temp5, "Sensor 5"), ($day.temp6, $week.temp6, $month.temp6, $year.temp6, $unit.label.temp6, "Sensor 6"), ($day.temp7, $week.temp7, $month.temp7, $year.temp7, $unit.label.temp7, "Sensor 7"), ($day.temp8, $week.temp8, $month.temp8, $year.temp8, $unit.label.temp8, "Sensor 8") ]:
+
+  #set ($d,$w,$m,$y,$u,$l) = $t
+
+  #if $d.has_data
+  <tr style='vertical-align:top'>
+    <td class="metric_name">High Temp $l:</td>
+    <td><span class="metric_value">$d.max.formatted</span><br/>
+      <span class="hilo_time">$d.maxtime</span></td>
+    <td><span class="metric_value">$w.max.formatted</span><br/>
+      <span class="hilo_time">$w.maxtime</span></td>
+    <td><span class="metric_value">$m.max.formatted</span><br/>
+      <span class="hilo_time">$m.maxtime</span></td>
+    <td><span class="metric_value">$y.max.formatted</span><br/>
+      <span class="hilo_time">$y.maxtime</span></td>
+    <td class="metric_units">$u</td>
+  </tr>
+  <tr style='vertical-align:top'>
+    <td class="metric_name">Low Temp $l:</td>
+    <td><span class="metric_value">$d.min.formatted</span><br/>
+      <span class="hilo_time">$d.mintime</span></td>
+    <td><span class="metric_value">$w.min.formatted</span><br/>
+      <span class="hilo_time">$w.mintime</span></td>
+    <td><span class="metric_value">$m.min.formatted</span><br/>
+      <span class="hilo_time">$m.mintime</span></td>
+    <td><span class="metric_value">$y.min.formatted</span><br/>
+      <span class="hilo_time">$y.mintime</span></td>
+    <td class="metric_units">$u</td>
+  </tr>
+  #end if
+
+#end for
+
+#for t in [ ($day.humidity0, $week.humidity0, $month.humidity0, $year.humidity0, $unit.label.humidity0, "KLP"), ($day.humidity1, $week.humidity1, $month.humidity1, $year.humidity1, $unit.label.humidity1, "Sensor 1"), ($day.humidity2, $week.humidity2, $month.humidity2, $year.humidity2, $unit.label.humidity2, "Sensor 2"), ($day.humidity3, $week.humidity3, $month.humidity3, $year.humidity3, $unit.label.humidity3, "Sensor 3"), ($day.humidity4, $week.humidity4, $month.humidity4, $year.humidity4, $unit.label.humidity4, "Sensor 4"), ($day.humidity5, $week.humidity5, $month.humidity5, $year.humidity5, $unit.label.humidity5, "Sensor 5"), ($day.humidity6, $week.humidity6, $month.humidity6, $year.humidity6, $unit.label.humidity6, "Sensor 6"), ($day.humidity7, $week.humidity7, $month.humidity7, $year.humidity7, $unit.label.humidity7, "Sensor 7"), ($day.humidity8, $week.humidity8, $month.humidity8, $year.humidity8, $unit.label.humidity8, "Sensor 8") ]:
+
+  #set ($d,$w,$m,$y,$u,$l) = $t
+
+  #if $d.has_data
+  <tr style='vertical-align:top'>
+    <td class="metric_name">High Humidity $l:</td>
+    <td><span class="metric_value">$d.max.formatted</span><br/>
+      <span class="hilo_time">$d.maxtime</span></td>
+    <td><span class="metric_value">$w.max.formatted</span><br/>
+      <span class="hilo_time">$w.maxtime</span></td>
+    <td><span class="metric_value">$m.max.formatted</span><br/>
+      <span class="hilo_time">$m.maxtime</span></td>
+    <td><span class="metric_value">$y.max.formatted</span><br/>
+      <span class="hilo_time">$y.maxtime</span></td>
+    <td class="metric_units">$u</td>
+  </tr>
+  <tr style='vertical-align:top'>
+    <td class="metric_name">Low Humidity $l:</td>
+    <td><span class="metric_value">$d.min.formatted</span><br/>
+      <span class="hilo_time">$d.mintime</span></td>
+    <td><span class="metric_value">$w.min.formatted</span><br/>
+      <span class="hilo_time">$w.mintime</span></td>
+    <td><span class="metric_value">$m.min.formatted</span><br/>
+      <span class="hilo_time">$m.mintime</span></td>
+    <td><span class="metric_value">$y.min.formatted</span><br/>
+      <span class="hilo_time">$y.mintime</span></td>
+    <td class="metric_units">$u</td>
+  </tr>
+  #end if
+
+#end for
+
+</table>
+<div id='footer'>
+  <table>
+    <tr><td class='label'>altitude:</td>
+      <td>$station.altitude</td></tr>
+    <tr><td class='label'>location:</td>
+      <td>$station.latitude[0]&deg; $station.latitude[1]' $station.latitude[2], $station.longitude[0]&deg; $station.longitude[1]' $station.longitude[2]</td></tr>
+    <tr><td class='label'>station:</td>
+      <td>$station.hardware</td></tr>
+    <tr><td class='label'>server:</td>
+      <td>$station.os_uptime</td></tr>
+    <tr><td class='label'>weewx:</td>
+      <td>$station.uptime</td></tr>
+    <tr><td></td>
+      <td>$station.version</td></tr>
+  </table>
+</div>
+      </div>
+      <div id='graphs_day' class='data_graphs'>
+        <img src="daytemp_a.png" alt="temperatures-a" />
+        <img src="daytemp_b.png" alt="temperatures-b" />
+        <img src="dayhumidity_a.png" alt="humidity-a" />
+        <img src="dayhumidity_b.png" alt="humidity-b" />
+        <img src="daydewpoint_a.png" alt="dewpoint-a" />
+        <img src="daydewpoint_b.png" alt="dewpoint-b" />
+        <img src="dayheatindex_a.png" alt="heatindex-a" />
+        <img src="dayheatindex_b.png" alt="heatindex-b" />
+        <img src="daybatterystatus_a.png" alt="batterystatus-a" />
+        <img src="daybatterystatus_b.png" alt="batterystatus-b" />
+        <img src="dayrx.png" alt="rx" />
+      </div>
+      <div id='graphs_week' class='data_graphs' style='display:none'>
+        <img src="weektemp_a.png" alt="temperatures-a" />
+        <img src="weektemp_b.png" alt="temperatures-b" />
+        <img src="weekhumidity_a.png" alt="humidity-a" />
+        <img src="weekhumidity_b.png" alt="humidity-b" />
+        <img src="weekdewpoint_a.png" alt="dewpoint-a" />
+        <img src="weekdewpoint_b.png" alt="dewpoint-b" />
+        <img src="weekheatindex_a.png" alt="heatindex-a" />
+        <img src="weekheatindex_b.png" alt="heatindex-b" />
+        <img src="weekbatterystatus_a.png" alt="batterystatus-a" />
+        <img src="weekbatterystatus_b.png" alt="batterystatus-b" />
+        <img src="weekrx.png" alt="rx" />
+      </div>
+      <div id='graphs_month' class='data_graphs' style='display:none'>
+        <img src="monthtemp_a.png" alt="temperatures-a" />
+        <img src="monthtemp_b.png" alt="temperatures-b" />
+        <img src="monthhumidity_a.png" alt="humidity-a" />
+        <img src="monthhumidity_b.png" alt="humidity-b" />
+        <img src="monthdewpoint_a.png" alt="dewpoint-a" />
+        <img src="monthdewpoint_b.png" alt="dewpoint-b" />
+        <img src="monthheatindex_a.png" alt="heatindex-a" />
+        <img src="monthheatindex_b.png" alt="heatindex-b" />
+        <img src="monthbatterystatus_a.png" alt="batterystatus-a" />
+        <img src="monthbatterystatus_b.png" alt="batterystatus-b" />
+        <img src="monthrx.png" alt="rx" />
+      </div>
+      <div id='graphs_year' class='data_graphs' style='display:none'>
+        <img src="yeartemp_a.png" alt="temperatures-a" />
+        <img src="yeartemp_b.png" alt="temperatures-b" />
+        <img src="yearhumidity_a.png" alt="humidity-a" />
+        <img src="yearhumidity_b.png" alt="humidity-b" />
+        <img src="yeardewpoint_a.png" alt="dewpoint-a" />
+        <img src="yeardewpoint_b.png" alt="dewpoint-b" />
+        <img src="yearheatindex_a.png" alt="heatindex-a" />
+        <img src="yearheatindex_b.png" alt="heatindex-b" />
+        <img src="yearbatterystatus_a.png" alt="batterystatus-a" />
+        <img src="yearbatterystatus_b.png" alt="batterystatus-b" />
+        <img src="yearrx.png" alt="rx" />
+      </div>
+    </div>
+  </body>
+</html>
